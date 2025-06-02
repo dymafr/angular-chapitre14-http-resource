@@ -1,5 +1,6 @@
 import { Injectable, resource, signal } from '@angular/core';
 import { TodoI, TodoFormI } from '../interfaces';
+import { httpResource } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -7,22 +8,44 @@ import { TodoI, TodoFormI } from '../interfaces';
 export class TodosDataClient {
   BASE_URL = 'https://restapi.fr/api/atodos';
 
-  todosResource = resource({
-    loader: async (): Promise<TodoI[]> =>
-      (await fetch(`${this.BASE_URL}?delay=1`)).json(),
-  });
+  // todosResource = resource({
+  //   loader: async (): Promise<TodoI[]> =>
+  //     (await fetch(`${this.BASE_URL}?delay=1`)).json(),
+  // });
+
+  // Depuis Angular 20, possibilité d'utiliser httpResource
+  todosResource = httpResource<TodoI[]>(() => ({
+    url: this.BASE_URL,
+    defaultValue: [],
+    params: { delay: 1 },
+  }));
+
   selectedTodoId = signal<string | null>(null);
-  selectedTodoResource = resource({
-    params: () => ({ id: this.selectedTodoId() }),
-    loader: async ({ params, abortSignal }): Promise<TodoI | undefined> => {
-      if (params.id) {
-        return (
-          await fetch(`${this.BASE_URL}/${params.id}`, { signal: abortSignal })
-        ).json();
-      } else {
-        return;
-      }
-    },
+  // selectedTodoResource = resource({
+  //   params: () => ({ id: this.selectedTodoId() }),
+  //   loader: async ({ params, abortSignal }): Promise<TodoI | undefined> => {
+  //     if (params.id) {
+  //       return (
+  //         await fetch(`${this.BASE_URL}/${params.id}`, { signal: abortSignal })
+  //       ).json();
+  //     } else {
+  //       return;
+  //     }
+  //   },
+  // });
+
+  // Depuis Angular 20, on peut utiliser httpResource pour la sélection
+  selectedTodoResource = httpResource<TodoI | undefined>(() => {
+    const todoId = this.selectedTodoId();
+
+    if (!todoId) {
+      return undefined;
+    }
+
+    return {
+      url: `${this.BASE_URL}/${todoId}`,
+      defaultValue: undefined,
+    };
   });
 
   selectTodo(todoId: string) {
