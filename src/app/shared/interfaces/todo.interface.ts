@@ -1,10 +1,10 @@
-export interface Todo {
+export interface TodoI {
   _id: string;
   name: string;
   done: boolean;
 }
 
-export interface TodoForm {
+export interface TodoFormI {
   name: string;
   done: boolean;
 }

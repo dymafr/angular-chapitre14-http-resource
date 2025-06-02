@@ -13,6 +13,6 @@ import { FormsModule } from '@angular/forms';
     />
   `,
 })
-export class TodoFilterComponent {
+export class TodoFilter {
   filter = model<string>('');
 }

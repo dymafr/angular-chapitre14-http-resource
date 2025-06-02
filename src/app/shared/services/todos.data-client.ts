@@ -1,26 +1,23 @@
 import { Injectable, resource, signal } from '@angular/core';
-import { Todo, TodoForm } from '../interfaces';
+import { TodoI, TodoFormI } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
-export class TodosService {
+export class TodosDataClient {
   BASE_URL = 'https://restapi.fr/api/atodos';
 
   todosResource = resource({
-    loader: async (): Promise<Todo[]> =>
+    loader: async (): Promise<TodoI[]> =>
       (await fetch(`${this.BASE_URL}?delay=1`)).json(),
   });
   selectedTodoId = signal<string | null>(null);
   selectedTodoResource = resource({
-    request: () => ({ id: this.selectedTodoId() }),
-    loader: async ({
-      request: { id },
-      abortSignal,
-    }): Promise<Todo | undefined> => {
-      if (id) {
+    params: () => ({ id: this.selectedTodoId() }),
+    loader: async ({ params, abortSignal }): Promise<TodoI | undefined> => {
+      if (params.id) {
         return (
-          await fetch(`${this.BASE_URL}/${id}`, { signal: abortSignal })
+          await fetch(`${this.BASE_URL}/${params.id}`, { signal: abortSignal })
         ).json();
       } else {
         return;
@@ -32,7 +29,7 @@ export class TodosService {
     this.selectedTodoId.set(todoId);
   }
 
-  async addTodo(todo: TodoForm) {
+  async addTodo(todo: TodoFormI) {
     try {
       const response = await fetch(this.BASE_URL, {
         method: 'POST',
@@ -54,7 +51,7 @@ export class TodosService {
     }
   }
 
-  async updateTodo(todo: Todo) {
+  async updateTodo(todo: TodoI) {
     try {
       const { _id, ...restTodo } = todo;
       const response = await fetch(`${this.BASE_URL}/${_id}`, {
@@ -67,7 +64,7 @@ export class TodosService {
       const body = await response.json();
       if (response.ok) {
         this.todosResource.update((todos) =>
-          todos?.map((t) => (t._id === (body as Todo)._id ? body : t))
+          todos?.map((t) => (t._id === (body as TodoI)._id ? body : t))
         );
         this.selectedTodoResource.reload();
       } else {

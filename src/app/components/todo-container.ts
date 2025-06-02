@@ -1,13 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { TodoFormComponent } from './todo-form.component';
-import { TodosListComponent } from './todos-list.component';
-import { Todo, TodoForm } from '../shared/interfaces';
-import { TodosService } from '../shared/services/todos.service';
+import { TodoForm } from './todo-form';
+import { TodosList } from './todos-list';
+import { TodoI, TodoFormI } from '../shared/interfaces';
+import { TodosDataClient } from '../shared/services/todos.data-client';
 import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-todo-container',
-  imports: [TodoFormComponent, TodosListComponent, JsonPipe],
+  imports: [TodoForm, TodosList, JsonPipe],
   template: `
     <app-todo-form (addTodo)="addTodo($event)" />
     @if (todosIsLoading()) {
@@ -26,13 +26,13 @@ import { JsonPipe } from '@angular/common';
     :host { padding: 32px; }
   `,
 })
-export class TodoContainerComponent {
-  todosService = inject(TodosService);
+export class TodoContainer {
+  todosService = inject(TodosDataClient);
   todosList = computed(() => this.todosService.todosResource.value() || []);
   todosIsLoading = this.todosService.todosResource.isLoading;
   selectedTodo = this.todosService.selectedTodoResource.value;
 
-  addTodo(todo: TodoForm) {
+  addTodo(todo: TodoFormI) {
     this.todosService.addTodo(todo);
   }
 
@@ -40,7 +40,7 @@ export class TodoContainerComponent {
     this.todosService.selectTodo(todoId);
   }
 
-  updateTodo(todo: Todo) {
+  updateTodo(todo: TodoI) {
     this.todosService.updateTodo(todo);
   }
 

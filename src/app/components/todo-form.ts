@@ -1,6 +1,6 @@
 import { Component, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TodoForm } from '../shared/interfaces';
+import { TodoFormI } from '../shared/interfaces';
 
 @Component({
   selector: 'app-todo-form',
@@ -21,13 +21,13 @@ import { TodoForm } from '../shared/interfaces';
     }
   `,
 })
-export class TodoFormComponent {
+export class TodoForm {
   todoName = '';
-  addTodo = output<TodoForm>();
+  addTodo = output<TodoFormI>();
 
   addTodoInput() {
     if (this.todoName) {
-      const newTodo: TodoForm = {
+      const newTodo: TodoFormI = {
         name: this.todoName,
         done: false,
       };
